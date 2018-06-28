@@ -122,7 +122,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     FeliCaLock \
     init.carrier.rc \
-    init.felica.sh
+    felicakey
 
 # Oneseg
 PRODUCT_PACKAGES += \
