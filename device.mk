@@ -98,6 +98,11 @@ PRODUCT_PACKAGES += \
     init.qcom.usb.rc \
     ueventd.qcom.rc
 
+# Oneseg
+PRODUCT_PACKAGES += \
+    libshim_oneseg_video \
+    libshim_oneseg_audio
+
 # Sensors
 PRODUCT_PACKAGES += \
     sensors.msm8974
