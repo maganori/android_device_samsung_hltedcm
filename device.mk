@@ -101,7 +101,10 @@ PRODUCT_PACKAGES += \
 # Oneseg
 PRODUCT_PACKAGES += \
     libshim_oneseg_video \
-    libshim_oneseg_audio
+    libshim_oneseg_audio \
+    libshim_oneseg_icu \
+    libshim_oneseg_skia \
+    libshim_oneseg_utils
 
 # Sensors
 PRODUCT_PACKAGES += \
