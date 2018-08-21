@@ -105,7 +105,9 @@ PRODUCT_PACKAGES += \
     libshim_oneseg_audio \
     libshim_oneseg_skia \
     libshim_oneseg_utils \
-    libshim_oneseg_binder
+    libshim_oneseg_binder \
+    libshim_oneseg_jpeg \
+    libshim_oneseg_png
 
 # Sensors
 PRODUCT_PACKAGES += \
