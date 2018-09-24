@@ -108,7 +108,8 @@ PRODUCT_COPY_FILES += \
 
 # Radio
 PRODUCT_PACKAGES += \
-    libsecnativefeature
+    libsecnativefeature \
+    libshim_cutils_atomic
 
 # Ramdisk
 PRODUCT_PACKAGES += \
@@ -122,6 +123,16 @@ PRODUCT_PACKAGES += \
     FeliCaLock \
     init.carrier.rc \
     init.felica.sh
+
+# Oneseg
+PRODUCT_PACKAGES += \
+    libshim_oneseg_video \
+    libshim_oneseg_audio \
+    libshim_oneseg_skia \
+    libshim_oneseg_utils \
+    libshim_oneseg_binder \
+    libshim_oneseg_jpeg \
+    libshim_oneseg_png
 
 # Sensors
 PRODUCT_PACKAGES += \
