@@ -17,3 +17,7 @@
 # Board specific SELinux policy variable definitions
 BOARD_SEPOLICY_DIRS += \
     device/samsung/hltedcm/sepolicy/common
+
+# FeliCa
+BOARD_SEPOLICY_DIRS += \
+    device/samsung/hltedcm/sepolicy/felica
