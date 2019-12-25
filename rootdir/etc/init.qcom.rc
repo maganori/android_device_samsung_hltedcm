@@ -1127,7 +1127,7 @@ service macloader /vendor/bin/macloader
     oneshot
     user system
     group system wifi
-    seclabel u:r:macloader:s0
+    #seclabel u:r:macloader:s0
 
 on property:wlan.driver.status=ok
     start macloader
@@ -1208,6 +1208,9 @@ on property:sys.boot_completed=1
     restorecon /data/data/com.android.providers.telephony/databases
     restorecon /data/data/com.android.providers.telephony/shared_prefs
 
+    # Fix Alarm permission
+    chmod 0664 /dev/alarm
+
 on property:persist.data.ds_fmc_app.mode=1
     start ds_fmc_appd
 
@@ -1217,7 +1220,7 @@ on property:ro.data.large_tcp_window_size=true
 
 service charger /charger
     class charger
-    seclabel u:r:charger:s0
+    #seclabel u:r:charger:s0
 
 # Disable SSR to SoC restart
 on property:persist.sys.ssr.restart_level=1
