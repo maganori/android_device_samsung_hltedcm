@@ -1100,9 +1100,6 @@ on property:ro.debuggable=1
     chmod 0666 /sys/class/mhl/swing
     chmod 0666 /sys/class/mhl/timing
 
-on property:apexd.status=ready
-    mount none /system/etc/swcodec/ld.config.txt /apex/com.android.media.swcodec/etc/ld.config.txt bind
-
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /vendor/bin/qmuxd
     class core
