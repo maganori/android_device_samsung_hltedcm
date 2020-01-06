@@ -52,6 +52,12 @@ ro.qc.sdk.izat.service_mask=0x0
 # perf api
 ro.vendor.extension_library=/vendor/lib/libqti-perfd-client.so
 
+# Media
+debug.stagefright.ccodec=0
+
+# Memory optimizations
+ro.vendor.qti.am.reschedule_service=true
+
 # NFC
 ro.nfc.port=I2C
 
@@ -67,6 +73,9 @@ ro.ril.telephony.qan_resp_strings=6
 
 # Ril sends only one RIL_UNSOL_CALL_RING, so set call_ring.multiple to false
 ro.telephony.call_ring.multiple=0
+
+# Store correct IMSI when retreived from SIMRecords and use it for RuimRecords
+ro.telephony.get_imsi_from_sim=true
 
 # Sensors
 debug.sensors=1
