@@ -1,0 +1,2 @@
+# /dev/alarm
+allow rild device:chr_file ioctl;
