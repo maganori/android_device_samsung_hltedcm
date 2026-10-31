@@ -77,7 +77,7 @@ service mfdp /system/bin/mfdp
 service mobileTV /system/vendor/bin/broadcastProcessObserver
     class main
     user system
-    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell mmb
+    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell
     seclabel u:r:oneseg_mw:s0
 
 service mmbcacasdrmmw /system/vendor/bin/MmbCaCasDrmMw
@@ -96,7 +96,7 @@ service mmbfcctlmw /system/vendor/bin/MmbFcCtlMw
 service mmbstservice /system/vendor/bin/MmbStCtlMwService
     class main
     user system
-    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell media media_rw
+    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw shell media media_rw
     seclabel u:r:mmb_mw:s0
 
 service mmbmp4 /system/vendor/bin/MmbFcMp4MwServer
