@@ -3,11 +3,15 @@
 # IMPORTANT: Do not create world writable files or directories.
 # This is a common source of Android security bugs.
 #
-# Ported from lineage-15.1 for lineage-18.1:
+# Merged for lineage-18.1 from the lineage-15.1 (FeliCa) and
+# lineage-15.1-oneseg versions of this file - the two branches each
+# carried only their own half; this is the first combined version.
 # - this file is installed to /vendor/etc/init/hw and imported from
-#   init.qcom.rc (in 15.1 it lived on the ramdisk and was imported by
-#   a relative path)
+#   init.qcom.rc (in 15.1 it lived on the ramdisk)
 # - init.felica.sh is installed to /vendor/bin (was /init.felica.sh)
+# - in the 15.1-oneseg branch this file was not installed at all
+#   (no module, no import), so the oneseg services below never ran
+#   there; the wiring here is new.
 
 on init
     export EXTERNAL_STORAGE_DOCOMO /storage/extSdCard
@@ -31,6 +35,30 @@ on post-fs-data
 # Fingerprint
     mkdir /dev/validity 0770 system system
 
+# Oneseg / MMB (from lineage-15.1-oneseg)
+    mkdir /data/one-seg 0775 system system
+
+    mkdir /data/system/databases 0775 system system
+    mkdir /system/etc/security/.drm 0775 drm system
+    mkdir /system/lib/drm 0775 root root
+    mkdir /data/mmb 0775 system system
+    mkdir /data/mmb/MmbCaCasDrmMw 0700 system sdcard_rw
+    mkdir /data/mmb/MmbFcCtlMw 0700 system sdcard_rw
+    mkdir /data/mmb/MmbFcCtlMw/dic 0700 system sdcard_rw
+    mkdir /data/mmb/MmbStCtlMw 0700 system sdcard_rw
+    mkdir /data/mmb/MmbFcMp4Mw 0700 system sdcard_rw
+    mkdir /data/mmb/common 0770 system sdcard_rw
+    mkdir /data/mmb/common/MmbFcCtlMw 0700 system sdcard_rw
+    mkdir /data/mmb/common/fcctl 0775 system sdcard_rw
+    mkdir /data/mmb/common/streccm 0775 system sdcard_rw
+    mkdir /data/mmb/MmbFcCtlMwMnt 0755 system sdcard_rw
+    mkdir /data/data/.drm 0775 drm system
+    mkdir /data/data/.drm/.playready 0775 drm system
+    mkdir /data/data/.drm/.sec_sctime 0775 system system
+
+    chmod 0770 /data/mmb/common/manifest
+    chown root system /data/mmb/common/manifest
+
 service mfsc /system/bin/mfsc
     class core
     user root
@@ -44,3 +72,47 @@ service mfdp /system/bin/mfdp
     group system nfc
     seclabel u:r:mfdp:s0
     oneshot
+
+# Oneseg / MMB services (from lineage-15.1-oneseg)
+service mobileTV /system/vendor/bin/broadcastProcessObserver
+    class main
+    user system
+    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell mmb
+    seclabel u:r:oneseg_mw:s0
+
+service mmbcacasdrmmw /system/vendor/bin/MmbCaCasDrmMw
+    class main
+    socket MmbCaCasDrmMw stream 666
+    user system
+    group system radio sdcard_r shell inet net_raw media media_rw
+    seclabel u:r:mmb_mw:s0
+
+service mmbfcctlmw /system/vendor/bin/MmbFcCtlMw
+    class main
+    user system
+    group system log mount sdcard_rw media media_rw sdcard_r shell net_raw camera
+    seclabel u:r:mmb_mw:s0
+
+service mmbstservice /system/vendor/bin/MmbStCtlMwService
+    class main
+    user system
+    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell media media_rw
+    seclabel u:r:mmb_mw:s0
+
+service mmbmp4 /system/vendor/bin/MmbFcMp4MwServer
+    class main
+    user system
+    group system sdcard_r shell media media_rw camera
+    seclabel u:r:mmb_mw:s0
+
+service mmbfclicemw /system/vendor/bin/MmbFcLiceMwServer
+    class main
+    user system
+    group system sdcard_rw inet media media_rw
+    seclabel u:r:mmb_mw:s0
+
+service mmbcmservice /system/vendor/bin/MmbStRecCmMwService
+    class late_start
+    user system
+    group system log mount net_raw sdcard_rw sdcard_r shell media media_rw
+    seclabel u:r:mmb_mw:s0

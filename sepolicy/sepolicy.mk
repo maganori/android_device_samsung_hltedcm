@@ -23,3 +23,7 @@ BOARD_SEPOLICY_DIRS += \
 # the platform-domain rules in this directory are the expected rework point)
 BOARD_SEPOLICY_DIRS += \
     device/samsung/hltedcm/sepolicy/felica
+
+# Oneseg (from lineage-15.1-oneseg)
+BOARD_SEPOLICY_DIRS += \
+    device/samsung/hltedcm/sepolicy/oneseg

@@ -74,7 +74,17 @@ DEVICE_MANIFEST_FILE += $(DEVICE_PATH)/manifest.xml
 # Legacy BLOB Support
 TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/hw/camera.vendor.msm8974.so|libshim_camera.so \
-    /system/vendor/lib/libperipheral_client.so|libshim_binder.so
+    /system/vendor/lib/libperipheral_client.so|libshim_binder.so \
+    /system/vendor/lib/libSDtvVout.so|libshim_oneseg_video.so \
+    /system/vendor/lib/libSDtvAout.so|libshim_oneseg_audio.so \
+    /system/vendor/lib/libBMLJNI.so|libshim_oneseg_skia.so \
+    /system/vendor/lib/libBMLJNI.so|libshim_oneseg_utils.so \
+    /system/vendor/lib/libMmbSfDplMp.so|libshim_oneseg_video.so \
+    /system/vendor/lib/libMmbSfDplMp.so|libshim_oneseg_audio.so \
+    /system/vendor/lib/libMmbFcMp4MwPlayerService.so|libshim_cutils_atomic.so \
+    /system/vendor/lib/libMmbCaKyMngMw.so|libshim_oneseg_binder.so \
+    /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_jpeg.so \
+    /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_png.so
 TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
     /system/bin/mediaserver=22 \
     /system/vendor/bin/hw/android.hardware.sensors@1.0-service.samsung8974=22 \
