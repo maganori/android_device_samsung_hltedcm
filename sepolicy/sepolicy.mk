@@ -17,3 +17,9 @@
 # Board specific SELinux policy variable definitions
 BOARD_SEPOLICY_DIRS += \
     device/samsung/hltedcm/sepolicy/common
+
+# FeliCa (from lineage-15.1; see the porting notes in the commit message -
+# in the split sepolicy of 18.1 the /system/bin file_contexts entries and
+# the platform-domain rules in this directory are the expected rework point)
+BOARD_SEPOLICY_DIRS += \
+    device/samsung/hltedcm/sepolicy/felica

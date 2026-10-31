@@ -81,8 +81,9 @@ TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
     /system/vendor/bin/mm-qcamera-daemon=22 \
     /system/vendor/bin/hw/rild=27
 
-# NFC
-#BOARD_NFC_HAL_SUFFIX := msm8974
+# NFC (Sony controller, FeliCa) - restored from lineage-15.1
+BOARD_NFC_HAL_SUFFIX := msm8974
+BOARD_NFC_CHIPSET := sony
 
 # Partitions
 BOARD_FLASH_BLOCK_SIZE := 131072

@@ -44,6 +44,12 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.telephony.gsm.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml
 
+# NFC Permissions (from lineage-15.1, paths adjusted to TARGET_COPY_OUT_VENDOR)
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.nfc.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.nfc.xml \
+    frameworks/native/data/etc/com.android.nfc_extras.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.android.nfc_extras.xml \
+    frameworks/native/data/etc/com.nxp.mifare.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.nxp.mifare.xml
+
 # Audio
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml \
@@ -78,6 +84,19 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_profiles_V1_0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_V1_0.xml \
     $(LOCAL_PATH)/configs/media_codecs_performance.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_performance.xml
 
+# NFC (Sony/FeliCa, from lineage-15.1)
+PRODUCT_PACKAGES += \
+    com.android.nfc_extras \
+    NfcSony \
+    Tag
+
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/nfcee_access.xml:system/etc/nfcee_access.xml \
+    $(LOCAL_PATH)/configs/libnfc-brcm-20791b05.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-brcm-20791b05.conf \
+    $(LOCAL_PATH)/configs/libnfc-brcm-20791b04.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-brcm-20791b04.conf \
+    $(LOCAL_PATH)/configs/libnfc-brcm.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-brcm.conf \
+    $(LOCAL_PATH)/configs/libnfc-nxp.conf:$(TARGET_COPY_OUT_VENDOR)/etc/libnfc-nxp.conf
+
 # Radio
 PRODUCT_PACKAGES += \
     libsecnativefeature
@@ -88,6 +107,12 @@ PRODUCT_PACKAGES += \
     init.qcom.rc \
     init.qcom.usb.rc \
     ueventd.qcom.rc
+
+# Ramdisk for felica (from lineage-15.1; install paths adapted in rootdir/Android.mk)
+PRODUCT_PACKAGES += \
+    FeliCaLock \
+    init.carrier.rc \
+    init.felica.sh
 
 # Sensors
 PRODUCT_COPY_FILES += \
