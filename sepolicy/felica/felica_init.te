@@ -9,5 +9,8 @@ allow felica_init vendor_file:file r_file_perms;
 allow felica_init felica_init_data_file:file r_file_perms;
 allow felica_init media_rw_data_file:dir search;
 allow felica_init proc:file w_file_perms;
+# lineage-18.1: /proc/cmdline has its own type now (was generic proc on 15.1);
+# init.felica.sh writes the model info there.
+allow felica_init proc_cmdline:file w_file_perms;
 allow felica_init { toolbox_exec vendor_toolbox_exec }:file rx_file_perms;
 allow felica_init self:capability { dac_override dac_read_search };
