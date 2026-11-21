@@ -124,8 +124,7 @@ PRODUCT_PACKAGES += \
     libshim_oneseg_utils \
     libshim_oneseg_binder \
     libshim_oneseg_jpeg \
-    libshim_oneseg_png \
-    libshim_oneseg_icu
+    libshim_oneseg_png
 
 # Sensors
 PRODUCT_COPY_FILES += \
