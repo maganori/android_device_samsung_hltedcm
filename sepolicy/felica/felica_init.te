@@ -14,3 +14,7 @@ allow felica_init proc:file w_file_perms;
 allow felica_init proc_cmdline:file w_file_perms;
 allow felica_init { toolbox_exec vendor_toolbox_exec }:file rx_file_perms;
 allow felica_init self:capability { dac_override dac_read_search };
+# init.felica.sh writes the CEN unlock byte to /dev/felica_cen at
+# post-fs-data so the NFC stack can start FeliCa reader discovery
+# after every boot (the CEN value is volatile and resets to 0).
+allow felica_init felica_device:chr_file w_file_perms;
