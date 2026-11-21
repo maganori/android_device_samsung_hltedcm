@@ -20,7 +20,8 @@
  *  2. defaultServiceManager() returning a ShimServiceManager that
  *     wraps the real service manager. Its getService()/checkService()
  *     wrap every returned binder in a ShimBinder.
- *  3. ShimBinder (a real Android 11 BBinder subclass) whose transact()
+ *  3. ShimBinder (a real Android 11 IBinder subclass; BBinder cannot
+ *     be used because its transact() is final in A11) whose transact()
  *     converts the frozen 48-byte Parcels to real Parcels, calls the
  *     real BpBinder, and converts the reply back. The real transact()
  *     therefore never touches a frozen Parcel directly.
@@ -246,14 +247,16 @@ private:
 // ---------------------------------------------------------------------------
 // ShimBinder: wraps a real BpBinder obtained from the service manager.
 //
-// It is a genuine Android 11 BBinder subclass, so its IBinder vtable
-// has the same slot layout the frozen code was compiled against
+// It derives directly from IBinder (BBinder::transact is final in
+// Android 11, so a BBinder subclass cannot intercept transact()).
+// Its primary vtable is therefore the IBinder interface vtable, with
+// the same slot layout the frozen code was compiled against
 // (+0x14 transact, +0x18 linkToDeath). queryLocalInterface() returns
 // nullptr for every real descriptor (forwarded to the real binder,
 // which is remote), so the frozen asInterface() builds its own Bp
 // proxy with this object as the remote, exactly as designed.
 
-class ShimBinder : public BBinder {
+class ShimBinder : public IBinder {
 public:
     explicit ShimBinder(const sp<IBinder>& real)
         : mReal(real) {
@@ -487,7 +490,9 @@ public:
 
 protected:
     IBinder* onAsBinder() override {
-        return mReal->asBinder().get();
+        // A11 IInterface::asBinder is a static helper; applied to the
+        // real service manager it yields the real SM binder.
+        return IInterface::asBinder(mReal.get()).get();
     }
 
 private:
