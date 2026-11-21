@@ -78,3 +78,10 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := libmorpho_frame_interp2
+LOCAL_SRC_FILES := morpho/morpho_stub.cpp
+LOCAL_VENDOR_MODULE := true
+LOCAL_MODULE_TAGS := optional
+include $(BUILD_SHARED_LIBRARY)

@@ -125,7 +125,8 @@ PRODUCT_PACKAGES += \
     libshim_oneseg_binder \
     libshim_oneseg_jpeg \
     libshim_oneseg_png \
-    libshim_oneseg_jvm
+    libshim_oneseg_jvm \
+    libmorpho_frame_interp2
 
 # The mmb framework jars cross-reference each other freely, which
 # Android 11's per-jar uses-library classloader chain breaks
