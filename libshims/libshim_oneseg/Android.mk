@@ -22,12 +22,6 @@ include $(CLEAR_VARS)
 # Android 11 has no shared libskia to forward to; the shim is now a
 # self-contained stub of the legacy symbols the blobs import.
 LOCAL_MODULE := libshim_oneseg_skia
-# Installed as libskia.so: Android 11 has no shared libskia, and nine
-# oneseg/mmb blobs DT_NEEDED it. The module name stays
-# libshim_oneseg_skia (a module named libskia would collide with the
-# Soong libskia in external/skia); only the installed file name
-# changes, via the stem.
-LOCAL_MODULE_STEM := libskia
 LOCAL_SRC_FILES := skia/skia_stub.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES

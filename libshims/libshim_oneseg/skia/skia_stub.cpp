@@ -4,17 +4,17 @@
  *
  * The original libshim_oneseg_skia forwarded to the system libskia.so,
  * but Android 11 no longer builds libskia as a shared library, so
- * there is nothing left to forward to. This module is therefore
- * installed under the name libskia.so itself (LOCAL_MODULE_STEM),
- * which satisfies the DT_NEEDED of all nine oneseg/mmb blobs that
- * link Skia: libBMLJNI, libSDtvService, libSDtvStack,
- * libbroadcastForOneSeg_jni, libMmbStBmlMw, libMmbStBmlMwPorting,
- * libMmbStCtlMwPorting, libMmbMfMp4FwMw and libmmbfcmp4mw_jni.
- * None of them is on the live-viewing decode path in a way that
- * needs real pixels (BML data-broadcast rendering and MP4
- * thumbnails/metadata), so these bodies intentionally do nothing
- * and return zero/nullptr: the callers keep working, only the
- * Skia-drawn content is lost.
+ * there is nothing left to forward to. Nine oneseg/mmb blobs link
+ * Skia via DT_NEEDED libskia.so: libBMLJNI, libSDtvService,
+ * libSDtvStack, libbroadcastForOneSeg_jni, libMmbStBmlMw,
+ * libMmbStBmlMwPorting, libMmbStCtlMwPorting, libMmbMfMp4FwMw and
+ * libmmbfcmp4mw_jni. Their DT_NEEDED entries are patched to this
+ * library in the vendor repo (patchelf --replace-needed), so this
+ * stub now serves all of them. None of the consumers is on the
+ * live-viewing decode path in a way that needs real pixels (BML
+ * data-broadcast rendering and MP4 thumbnails/metadata), so these
+ * bodies intentionally do nothing and return zero/nullptr: the
+ * callers keep working, only the Skia-drawn content is lost.
  *
  * The class declarations below exist only to make the compiler emit
  * the exact mangled symbol names the blobs import. The objects live
