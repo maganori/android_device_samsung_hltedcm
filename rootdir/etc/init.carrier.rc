@@ -118,7 +118,6 @@ service mmbmp4 /system/vendor/bin/MmbFcMp4MwServer
     user system
     group system sdcard_r shell media media_rw camera
     seclabel u:r:mmb_mw:s0
-    disabled
 
 service mmbfclicemw /system/vendor/bin/MmbFcLiceMwServer
     class main

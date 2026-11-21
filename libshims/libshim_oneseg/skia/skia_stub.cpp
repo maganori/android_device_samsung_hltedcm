@@ -4,12 +4,17 @@
  *
  * The original libshim_oneseg_skia forwarded to the system libskia.so,
  * but Android 11 no longer builds libskia as a shared library, so
- * there is nothing left to forward to. The only consumers are
- * libBMLJNI.so (BML data-broadcast rendering) and, through a pending
- * DT_NEEDED patch, libMmbMfMp4FwMw.so (MP4 thumbnails/metadata).
- * Neither is on the live-viewing path, so these bodies intentionally
- * do nothing and return zero/nullptr: the callers keep working, only
- * the Skia-drawn content is lost.
+ * there is nothing left to forward to. This module is therefore
+ * installed under the name libskia.so itself (LOCAL_MODULE_STEM),
+ * which satisfies the DT_NEEDED of all nine oneseg/mmb blobs that
+ * link Skia: libBMLJNI, libSDtvService, libSDtvStack,
+ * libbroadcastForOneSeg_jni, libMmbStBmlMw, libMmbStBmlMwPorting,
+ * libMmbStCtlMwPorting, libMmbMfMp4FwMw and libmmbfcmp4mw_jni.
+ * None of them is on the live-viewing decode path in a way that
+ * needs real pixels (BML data-broadcast rendering and MP4
+ * thumbnails/metadata), so these bodies intentionally do nothing
+ * and return zero/nullptr: the callers keep working, only the
+ * Skia-drawn content is lost.
  *
  * The class declarations below exist only to make the compiler emit
  * the exact mangled symbol names the blobs import. The objects live
@@ -32,6 +37,13 @@ enum SkColorType {
     kARGB_4444_SkColorType,
     kRGBA_8888_SkColorType,
     kBGRA_8888_SkColorType,
+};
+
+enum SkAlphaType {
+    kIgnore_SkAlphaType,
+    kOpaque_SkAlphaType,
+    kPremul_SkAlphaType,
+    kUnpremul_SkAlphaType,
 };
 
 struct SkRect {
@@ -73,6 +85,16 @@ public:
 
 class SkPaint {
 public:
+    enum Align {
+        kLeft_Align,
+        kCenter_Align,
+        kRight_Align,
+    };
+    enum Style {
+        kFill_Style,
+        kStroke_Style,
+        kStrokeAndFill_Style,
+    };
     enum FilterLevel {
         kNone_FilterLevel,
         kLow_FilterLevel,
@@ -99,8 +121,13 @@ public:
     ~SkPaint() {}
 
     void setColor(SkColor) {}
+    void setARGB(uint32_t, uint32_t, uint32_t, uint32_t) {}
+    void setStyle(Style) {}
+    void setStrokeWidth(SkScalar) {}
     void setAntiAlias(bool) {}
     void setTextSize(SkScalar) {}
+    void setTextAlign(Align) {}
+    void setTextScaleX(SkScalar) {}
     void setTypeface(SkTypeface*) {}
     void setFilterLevel(FilterLevel) {}
     void setFakeBoldText(bool) {}
@@ -134,6 +161,10 @@ public:
 
     void reset() {}
     bool setInfo(const SkImageInfo&, size_t) { return true; }
+    void setConfig(Config, int, int, size_t, SkAlphaType) {}
+    Config config() const { return kNo_Config; }
+    void lockPixels() const {}
+    void unlockPixels() const {}
     bool allocPixels(Allocator*, SkColorTable*) { return true; }
     void setPixels(void*, SkColorTable*) {}
     bool copyTo(SkBitmap*, SkColorType, Allocator*) const { return false; }
@@ -143,13 +174,54 @@ SkColorType SkBitmapConfigToColorType(SkBitmap::Config) {
     return kUnknown_SkColorType;
 }
 
+class SkXfermode {
+public:
+    enum Mode {
+        kClear_Mode,
+        kSrc_Mode,
+        kDst_Mode,
+        kSrcOver_Mode,
+        kDstOver_Mode,
+        kSrcIn_Mode,
+        kDstIn_Mode,
+        kSrcOut_Mode,
+        kDstOut_Mode,
+        kSrcATop_Mode,
+        kDstATop_Mode,
+        kXor_Mode,
+    };
+};
+
 class SkCanvas {
 public:
     SkCanvas(const SkBitmap&) {}
+    ~SkCanvas() {}
 
     int save() { return 0; }
     void restore() {}
     bool clipRect(const SkRect&, SkRegion::Op, bool) { return true; }
+    void drawColor(SkColor, SkXfermode::Mode) {}
+    void drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode) {}
+    void drawPoint(SkScalar, SkScalar, SkColor) {}
     void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&) {}
     void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) {}
+};
+
+class SkImageDecoder {
+public:
+    enum Mode {
+        kDecodeBounds_Mode,
+        kDecodePixels_Mode,
+    };
+    enum Format {
+        kUnknown_Format,
+        kBMP_Format,
+        kGIF_Format,
+        kICO_Format,
+        kJPEG_Format,
+        kPNG_Format,
+        kWBMP_Format,
+        kWEBP_Format,
+    };
+    static bool DecodeFile(const char*, SkBitmap*, SkColorType, Mode, Format*) { return false; }
 };
