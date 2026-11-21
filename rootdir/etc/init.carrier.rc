@@ -91,6 +91,17 @@ service mobileTV /system/vendor/bin/broadcastProcessObserver
     group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell
     seclabel u:r:oneseg_mw:s0
 
+# SDtvService hosts the ISDtvService.SDtvStackService binder
+# the viewer app talks to. The stock rc that started it is
+# not part of this tree, so define it here next to mobileTV
+# (same domain). It was never started, which the viewer
+# reported as "OneSeg middleware crashed".
+service sdtvservice /system/bin/SDtvService
+    class main
+    user system
+    group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw sdcard_r shell
+    seclabel u:r:oneseg_mw:s0
+
 service mmbcacasdrmmw /system/vendor/bin/MmbCaCasDrmMw
     class main
     socket MmbCaCasDrmMw stream 666
