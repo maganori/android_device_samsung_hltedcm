@@ -39,10 +39,12 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libshim_oneseg_binder
-LOCAL_SRC_FILES := binder/Parcel.cpp
+LOCAL_SRC_FILES := \
+    binder/Parcel.cpp \
+    binder/BinderBridge.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_SHARED_LIBRARIES := libbinder
+LOCAL_SHARED_LIBRARIES := libbinder libutils liblog libdl
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 

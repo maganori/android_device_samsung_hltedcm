@@ -83,6 +83,9 @@ TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/libMmbSfDplMp.so|libshim_oneseg_audio.so \
     /system/vendor/lib/libMmbFcMp4MwPlayerService.so|libshim_cutils_atomic.so \
     /system/vendor/lib/libMmbCaKyMngMw.so|libshim_oneseg_binder.so \
+    /system/vendor/lib/libbroadcastForOneSeg_jni.so|libshim_oneseg_binder.so \
+    /system/vendor/lib/libBroadcastProcObs.so|libshim_oneseg_binder.so \
+    /system/vendor/lib/libSDtvService.so|libshim_oneseg_binder.so \
     /system/vendor/lib/libBroadcastProcObs.so|libshim_binder.so \
     /system/vendor/lib/libMmbFcMp4Mw.so|libshim_binder.so \
     /system/vendor/lib/libMmbStBmlMw.so|libshim_binder.so \
