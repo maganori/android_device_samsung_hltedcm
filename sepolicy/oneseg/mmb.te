@@ -136,3 +136,15 @@ allow mmb_mw app_data_file:file { rw_file_perms setattr };
 # avc:  denied  { read write } for  pid=12056 comm="Binder_2" name="mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
 # avc:  denied  { setattr } for  pid=12056 comm="Binder_2" name="mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
 # avc:  denied  { lock } for  pid=12056 comm="Binder_2" path="/data/data/com.nttdocomo.mmb.android.mmbsv.process/pfsetup/mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
+
+######################################################################
+# MmbCaCasDrmMw service socket (created by init in /dev/socket)
+# Without this, init is denied creating the socket file and the
+# mmbcacasdrmmw service exits immediately at every start.
+type mmb_cas_socket, file_type;
+allow init mmb_cas_socket:sock_file create_file_perms;
+allow mmb_mw mmb_cas_socket:sock_file rw_file_perms;
+allow platform_app mmb_cas_socket:sock_file write;
+allow system_app mmb_cas_socket:sock_file write;
+allow platform_app mmb_mw:unix_stream_socket connectto;
+allow system_app mmb_mw:unix_stream_socket connectto;

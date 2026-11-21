@@ -110,11 +110,15 @@ service mmbstservice /system/vendor/bin/MmbStCtlMwService
     group system radio audio camera graphics inet net_bt net_bt_admin net_raw sdcard_rw shell media media_rw
     seclabel u:r:mmb_mw:s0
 
+# Disabled for now: libMmbMfMp4FwMw.so needs the system libskia.so,
+# which Android 11 no longer provides as a shared library. Re-enable
+# once its DT_NEEDED is patched to libshim_oneseg_skia.so.
 service mmbmp4 /system/vendor/bin/MmbFcMp4MwServer
     class main
     user system
     group system sdcard_r shell media media_rw camera
     seclabel u:r:mmb_mw:s0
+    disabled
 
 service mmbfclicemw /system/vendor/bin/MmbFcLiceMwServer
     class main

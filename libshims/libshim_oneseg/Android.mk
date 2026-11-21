@@ -19,17 +19,12 @@ LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
+# Android 11 has no shared libskia to forward to; the shim is now a
+# self-contained stub of the legacy symbols the blobs import.
 LOCAL_MODULE := libshim_oneseg_skia
-LOCAL_SRC_FILES := \
-    skia/SkBitmap.cpp \
-    skia/SkCanvas.cpp \
-    skia/SkImagePriv.cpp \
-    skia/SkPaint.cpp \
-    skia/SkPaintOptionsAndroid.cpp \
-    skia/SkTypeface.cpp
+LOCAL_SRC_FILES := skia/skia_stub.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_SHARED_LIBRARIES := libskia
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
