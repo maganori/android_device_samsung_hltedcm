@@ -15,6 +15,9 @@ LOCAL_SRC_FILES := media/AudioTrack.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_SHARED_LIBRARIES := libaudioclient
+# The Android 11 AudioTrack.h pulls in media/MediaMetricsItem.h,
+# whose include directory is not exported by libaudioclient.
+LOCAL_C_INCLUDES += frameworks/av/media/libmediametrics/include
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
