@@ -113,7 +113,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     FeliCaLock \
     init.carrier.rc \
-    init.felica.sh
+    init.felica.sh \
+    felica_cen_unlock.sh
 
 # Oneseg shims (from lineage-15.1-oneseg)
 PRODUCT_PACKAGES += \
