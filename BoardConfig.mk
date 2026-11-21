@@ -84,6 +84,16 @@ TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/libMmbFcMp4MwPlayerService.so|libshim_cutils_atomic.so \
     /system/vendor/lib/libMmbCaKyMngMw.so|libshim_oneseg_binder.so \
     /system/vendor/lib/libBroadcastProcObs.so|libshim_binder.so \
+    /system/vendor/lib/libMmbFcMp4Mw.so|libshim_binder.so \
+    /system/vendor/lib/libMmbStBmlMw.so|libshim_binder.so \
+    /system/vendor/lib/libMmbStCtlMw.so|libshim_binder.so \
+    /system/vendor/lib/libBML.so|libshim_binder.so \
+    /system/vendor/lib/libBMLJNI.so|libshim_binder.so \
+    /system/vendor/lib/libSDtvService.so|libshim_binder.so \
+    /system/vendor/lib/libonesegdsmcc.so|libshim_binder.so \
+    /system/vendor/lib/libMmbPoXmlMp.so|libshim_oneseg_icu.so \
+    /system/vendor/lib/libMmbStBmlMwPorting.so|libshim_oneseg_icu.so \
+    /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_icu.so \
     /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_jpeg.so \
     /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_png.so
 TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
