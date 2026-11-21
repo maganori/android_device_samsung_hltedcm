@@ -91,6 +91,10 @@ TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/libBMLJNI.so|libshim_binder.so \
     /system/vendor/lib/libSDtvService.so|libshim_binder.so \
     /system/vendor/lib/libonesegdsmcc.so|libshim_binder.so \
+    /system/vendor/lib/libMmbMfMp4FwMw.so|libshim_oneseg_video.so \
+    /system/vendor/lib/libMmbStBmlMwService_jni.so|libshim_oneseg_jvm.so \
+    /system/vendor/lib/libMmbStCtlMwService_jni.so|libshim_oneseg_jvm.so \
+    /system/vendor/lib/libMmbStRecMwService_jni.so|libshim_oneseg_jvm.so \
     /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_jpeg.so \
     /system/vendor/lib/libskia_LRX21V.so|libshim_oneseg_png.so
 TARGET_PROCESS_SDK_VERSION_OVERRIDE += \

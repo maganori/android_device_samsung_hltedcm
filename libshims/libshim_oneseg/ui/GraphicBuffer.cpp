@@ -15,6 +15,7 @@
  */
 
 #include <ui/GraphicBuffer.h>
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -60,6 +61,32 @@ int _ZN7android13GraphicBuffer4lockEjPPv(
     int32_t width = 0;
     int32_t height = 0;
     return _ZN7android13GraphicBuffer4lockEjPPvPiS3_(self, usage, vaddr, &width, &height);
+}
+
+/*
+ * android::Fence::~Fence() - imported by libMmbMfMp4FwMw.so.
+ *
+ * Android 11 defines the destructor inline in <ui/Fence.h>, so
+ * libui exports no D1/D2 symbol. In both the legacy and the
+ * Android 11 layout the object is a LightRefBase (one 32-bit
+ * refcount, no vtable) followed by the fence fd as a plain int,
+ * and the objects the blob destroys were created by Android 11's
+ * own Fence constructor, so the fd sits at offset 4. Close it the
+ * way the real destructor does; fds 0-2 are never fence fds and
+ * NO_FENCE is -1.
+ */
+void _ZN7android5FenceD1Ev(void *self)
+{
+    int *fd = reinterpret_cast<int*>(reinterpret_cast<char*>(self) + 4);
+    if (*fd > 2) {
+        close(*fd);
+        *fd = -1;
+    }
+}
+
+void _ZN7android5FenceD2Ev(void *self)
+{
+    _ZN7android5FenceD1Ev(self);
 }
 
 #ifdef __cplusplus
