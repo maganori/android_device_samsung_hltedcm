@@ -14,7 +14,29 @@
  * limitations under the License.
  */
 
-#include <media/AudioTrack.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <system/audio.h>
+
+/*
+ * This adapter only forwards between two explicitly-named symbols, so
+ * it does not need the real AudioTrack class. Including the Android 11
+ * <media/AudioTrack.h> drags in a chain of headers (MediaMetricsItem,
+ * Modulo, ...) that are not on this module's include path. Declare
+ * just the two nested types the signatures below use; the values of
+ * transfer_type are passed through unchanged.
+ */
+namespace android {
+class AudioTrack {
+public:
+    typedef void (*callback_t)(int event, void* user, void* info);
+    enum transfer_type {
+        TRANSFER_CALLBACK,
+        TRANSFER_OBTAIN,
+        TRANSFER_SYNC,
+    };
+};
+}  // namespace android
 
 #ifdef __cplusplus
 extern "C"
