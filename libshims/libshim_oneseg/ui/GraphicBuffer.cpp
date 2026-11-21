@@ -42,6 +42,26 @@ void _ZN7android13GraphicBufferC1EP19ANativeWindowBufferb(
 	buffer->usage, buffer->stride);
 }
 
+/*
+android::GraphicBuffer::lock(unsigned int, void**, int*, int*) - Android 11.
+The two int outputs (the locked area's dimensions) are optional;
+the legacy two-argument lock() below passes scratch variables.
+*/
+extern int _ZN7android13GraphicBuffer4lockEjPPvPiS3_(
+	void *self, uint32_t usage, void** vaddr, int32_t* outWidth, int32_t* outHeight);
+
+/*
+android::GraphicBuffer::lock(unsigned int, void**) - legacy signature
+imported by libMmbSfDplMp.so; removed from libui in Android 11.
+*/
+int _ZN7android13GraphicBuffer4lockEjPPv(
+	void *self, uint32_t usage, void** vaddr)
+{
+    int32_t width = 0;
+    int32_t height = 0;
+    return _ZN7android13GraphicBuffer4lockEjPPvPiS3_(self, usage, vaddr, &width, &height);
+}
+
 #ifdef __cplusplus
 }
 #endif

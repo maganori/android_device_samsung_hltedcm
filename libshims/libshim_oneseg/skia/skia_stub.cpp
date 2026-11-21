@@ -21,6 +21,12 @@
  * in the callers' own storage (sized by the legacy headers), so the
  * constructors and destructors must not touch any member: they are
  * empty on purpose.
+ *
+ * All methods are defined OUT OF LINE on purpose: a method defined
+ * inside the class body is an inline function, and the compiler
+ * emits no symbol for it in this translation unit unless it is
+ * odr-used here - the first build of this stub exported only the
+ * one free function for exactly that reason.
  */
 
 #include <stddef.h>
@@ -73,15 +79,21 @@ public:
         kItalic = 2,
         kBoldItalic = 3,
     };
-    static SkTypeface* CreateFromFile(const char*) { return nullptr; }
-    static SkTypeface* CreateFromName(const char*, Style) { return nullptr; }
-    static SkTypeface* CreateFromTypeface(const SkTypeface*, Style) { return nullptr; }
+    static SkTypeface* CreateFromFile(const char*);
+    static SkTypeface* CreateFromName(const char*, Style);
+    static SkTypeface* CreateFromTypeface(const SkTypeface*, Style);
 };
+
+SkTypeface* SkTypeface::CreateFromFile(const char*) { return nullptr; }
+SkTypeface* SkTypeface::CreateFromName(const char*, Style) { return nullptr; }
+SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface*, Style) { return nullptr; }
 
 class SkPaintOptionsAndroid {
 public:
-    void setLanguage(const char*) {}
+    void setLanguage(const char*);
 };
+
+void SkPaintOptionsAndroid::setLanguage(const char*) {}
 
 class SkPaint {
 public:
@@ -116,32 +128,54 @@ public:
         float fAvgCharWidth, fXMin, fXMax, fXHeight;
     };
 
-    SkPaint() {}
-    SkPaint(const SkPaint&) {}
-    ~SkPaint() {}
+    SkPaint();
+    SkPaint(const SkPaint&);
+    ~SkPaint();
 
-    void setColor(SkColor) {}
-    void setARGB(uint32_t, uint32_t, uint32_t, uint32_t) {}
-    void setStyle(Style) {}
-    void setStrokeWidth(SkScalar) {}
-    void setAntiAlias(bool) {}
-    void setTextSize(SkScalar) {}
-    void setTextAlign(Align) {}
-    void setTextScaleX(SkScalar) {}
-    void setTypeface(SkTypeface*) {}
-    void setFilterLevel(FilterLevel) {}
-    void setFakeBoldText(bool) {}
-    void setTextEncoding(TextEncoding) {}
-    void setPaintOptionsAndroid(const SkPaintOptionsAndroid&) {}
+    void setColor(SkColor);
+    void setARGB(uint32_t, uint32_t, uint32_t, uint32_t);
+    void setStyle(Style);
+    void setStrokeWidth(SkScalar);
+    void setAntiAlias(bool);
+    void setTextSize(SkScalar);
+    void setTextAlign(Align);
+    void setTextScaleX(SkScalar);
+    void setTypeface(SkTypeface*);
+    void setFilterLevel(FilterLevel);
+    void setFakeBoldText(bool);
+    void setTextEncoding(TextEncoding);
+    void setPaintOptionsAndroid(const SkPaintOptionsAndroid&);
 
-    SkScalar measureText(const void*, size_t, SkRect*, SkScalar) const { return 0; }
-    SkScalar getFontMetrics(FontMetrics* metrics, SkScalar) const {
-        if (metrics != nullptr) {
-            memset(metrics, 0, sizeof(*metrics));
-        }
-        return 0;
-    }
+    SkScalar measureText(const void*, size_t, SkRect*, SkScalar) const;
+    SkScalar getFontMetrics(FontMetrics*, SkScalar) const;
 };
+
+SkPaint::SkPaint() {}
+SkPaint::SkPaint(const SkPaint&) {}
+SkPaint::~SkPaint() {}
+
+void SkPaint::setColor(SkColor) {}
+void SkPaint::setARGB(uint32_t, uint32_t, uint32_t, uint32_t) {}
+void SkPaint::setStyle(Style) {}
+void SkPaint::setStrokeWidth(SkScalar) {}
+void SkPaint::setAntiAlias(bool) {}
+void SkPaint::setTextSize(SkScalar) {}
+void SkPaint::setTextAlign(Align) {}
+void SkPaint::setTextScaleX(SkScalar) {}
+void SkPaint::setTypeface(SkTypeface*) {}
+void SkPaint::setFilterLevel(FilterLevel) {}
+void SkPaint::setFakeBoldText(bool) {}
+void SkPaint::setTextEncoding(TextEncoding) {}
+void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid&) {}
+
+SkScalar SkPaint::measureText(const void*, size_t, SkRect*, SkScalar) const { return 0; }
+
+SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar) const {
+    if (metrics != nullptr) {
+        memset(metrics, 0, sizeof(*metrics));
+    }
+    return 0;
+}
 
 class SkBitmap {
 public:
@@ -156,19 +190,32 @@ public:
     };
     class Allocator {};
 
-    SkBitmap() {}
-    ~SkBitmap() {}
+    SkBitmap();
+    ~SkBitmap();
 
-    void reset() {}
-    bool setInfo(const SkImageInfo&, size_t) { return true; }
-    void setConfig(Config, int, int, size_t, SkAlphaType) {}
-    Config config() const { return kNo_Config; }
-    void lockPixels() const {}
-    void unlockPixels() const {}
-    bool allocPixels(Allocator*, SkColorTable*) { return true; }
-    void setPixels(void*, SkColorTable*) {}
-    bool copyTo(SkBitmap*, SkColorType, Allocator*) const { return false; }
+    void reset();
+    bool setInfo(const SkImageInfo&, size_t);
+    void setConfig(Config, int, int, size_t, SkAlphaType);
+    Config config() const;
+    void lockPixels() const;
+    void unlockPixels() const;
+    bool allocPixels(Allocator*, SkColorTable*);
+    void setPixels(void*, SkColorTable*);
+    bool copyTo(SkBitmap*, SkColorType, Allocator*) const;
 };
+
+SkBitmap::SkBitmap() {}
+SkBitmap::~SkBitmap() {}
+
+void SkBitmap::reset() {}
+bool SkBitmap::setInfo(const SkImageInfo&, size_t) { return true; }
+void SkBitmap::setConfig(Config, int, int, size_t, SkAlphaType) {}
+SkBitmap::Config SkBitmap::config() const { return kNo_Config; }
+void SkBitmap::lockPixels() const {}
+void SkBitmap::unlockPixels() const {}
+bool SkBitmap::allocPixels(Allocator*, SkColorTable*) { return true; }
+void SkBitmap::setPixels(void*, SkColorTable*) {}
+bool SkBitmap::copyTo(SkBitmap*, SkColorType, Allocator*) const { return false; }
 
 SkColorType SkBitmapConfigToColorType(SkBitmap::Config) {
     return kUnknown_SkColorType;
@@ -194,18 +241,30 @@ public:
 
 class SkCanvas {
 public:
-    SkCanvas(const SkBitmap&) {}
-    ~SkCanvas() {}
+    SkCanvas(const SkBitmap&);
+    ~SkCanvas();
 
-    int save() { return 0; }
-    void restore() {}
-    bool clipRect(const SkRect&, SkRegion::Op, bool) { return true; }
-    void drawColor(SkColor, SkXfermode::Mode) {}
-    void drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode) {}
-    void drawPoint(SkScalar, SkScalar, SkColor) {}
-    void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&) {}
-    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) {}
+    int save();
+    void restore();
+    bool clipRect(const SkRect&, SkRegion::Op, bool);
+    void drawColor(SkColor, SkXfermode::Mode);
+    void drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode);
+    void drawPoint(SkScalar, SkScalar, SkColor);
+    void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&);
+    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&);
 };
+
+SkCanvas::SkCanvas(const SkBitmap&) {}
+SkCanvas::~SkCanvas() {}
+
+int SkCanvas::save() { return 0; }
+void SkCanvas::restore() {}
+bool SkCanvas::clipRect(const SkRect&, SkRegion::Op, bool) { return true; }
+void SkCanvas::drawColor(SkColor, SkXfermode::Mode) {}
+void SkCanvas::drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode) {}
+void SkCanvas::drawPoint(SkScalar, SkScalar, SkColor) {}
+void SkCanvas::drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&) {}
+void SkCanvas::drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) {}
 
 class SkImageDecoder {
 public:
@@ -223,5 +282,9 @@ public:
         kWBMP_Format,
         kWEBP_Format,
     };
-    static bool DecodeFile(const char*, SkBitmap*, SkColorType, Mode, Format*) { return false; }
+    static bool DecodeFile(const char*, SkBitmap*, SkColorType, Mode, Format*);
 };
+
+bool SkImageDecoder::DecodeFile(const char*, SkBitmap*, SkColorType, Mode, Format*) {
+    return false;
+}
