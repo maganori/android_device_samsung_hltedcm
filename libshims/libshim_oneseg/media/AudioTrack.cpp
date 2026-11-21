@@ -44,10 +44,24 @@ extern "C"
 #endif
 
 /*
-android::AudioTrack::AudioTrack(audio_stream_type_t, unsigned int, audio_format_t, unsigned int, unsigned int, audio_output_flags_t, void (*)(int, void*, void*), void*, int, audio_session_t, android::AudioTrack::transfer_type, audio_offload_info_t const*, unsigned int, int, audio_attributes_t const*, bool, float)
+ * Opaque stand-in for the std::string parameter of the Android 11
+ * constructor below; only its address is ever passed.
+ */
+class AudioTrackOpPackageName;
+
+/*
+ * Backing storage for an empty package name. A zeroed 24-byte buffer
+ * is a valid empty libc++ std::string (short-string form, length 0),
+ * which is all the constructor needs for a caller that has no
+ * package name to attribute.
+ */
+static const char kEmptyPackageName[24] = {};
+
+/*
+android::AudioTrack::AudioTrack(audio_stream_type_t, unsigned int, audio_format_t, unsigned int, unsigned int, audio_output_flags_t, void (*)(int, void*, void*), void*, int, audio_session_t, android::AudioTrack::transfer_type, audio_offload_info_t const*, unsigned int, int, audio_attributes_t const*, bool, float, int, std::string const&)
 */
-extern void _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
-        void *self, audio_stream_type_t streamType, uint32_t sampleRate, audio_format_t format, audio_channel_mask_t channelMask, size_t frameCount, audio_output_flags_t flags, android::AudioTrack::callback_t cbf, void* user, unsigned int notificationFrames, audio_session_t sessionId, android::AudioTrack::transfer_type transferType, audio_offload_info_t const *offloadInfo, uid_t uid, pid_t pid, audio_attributes_t const *pAttributes, bool doNotReconnect, float maxRequiredSpeed);
+extern void _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbfiRKNSt3__112basic_stringIcNSF_11char_traitsIcEENSF_9allocatorIcEEEE(
+        void *self, audio_stream_type_t streamType, uint32_t sampleRate, audio_format_t format, audio_channel_mask_t channelMask, size_t frameCount, audio_output_flags_t flags, android::AudioTrack::callback_t cbf, void* user, unsigned int notificationFrames, audio_session_t sessionId, android::AudioTrack::transfer_type transferType, audio_offload_info_t const *offloadInfo, uid_t uid, pid_t pid, audio_attributes_t const *pAttributes, bool doNotReconnect, float maxRequiredSpeed, int portId, const AudioTrackOpPackageName& opPackageName);
 
 
 /*
@@ -56,8 +70,8 @@ android::AudioTrack::AudioTrack(audio_stream_type_t, unsigned int, audio_format_
 void _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_jiNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_t(
         void *self, audio_stream_type_t streamType, uint32_t sampleRate, audio_format_t format, audio_channel_mask_t channelMask, size_t frameCount, audio_output_flags_t flags, android::AudioTrack::callback_t cbf, void* user, unsigned int notificationFrames, audio_session_t sessionId, android::AudioTrack::transfer_type transferType, audio_offload_info_t const *offloadInfo, uid_t uid, pid_t pid, audio_attributes_t const *pAttributes)
 {
-    _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbf(
-	self, streamType, sampleRate, format, channelMask, frameCount, flags, cbf, user, notificationFrames, sessionId, transferType, offloadInfo, uid, pid, pAttributes, false, 1.0f);
+    _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbfiRKNSt3__112basic_stringIcNSF_11char_traitsIcEENSF_9allocatorIcEEEE(
+	self, streamType, sampleRate, format, channelMask, frameCount, flags, cbf, user, notificationFrames, sessionId, transferType, offloadInfo, uid, pid, pAttributes, false, 1.0f, 0 /* AUDIO_PORT_HANDLE_NONE */, *reinterpret_cast<const AudioTrackOpPackageName*>(kEmptyPackageName));
 }
 
 #ifdef __cplusplus
