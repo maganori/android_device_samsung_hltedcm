@@ -127,6 +127,18 @@ PRODUCT_PACKAGES += \
     libshim_oneseg_png \
     libshim_oneseg_jvm
 
+# The mmb framework jars cross-reference each other freely, which
+# Android 11's per-jar uses-library classloader chain breaks
+# (NoClassDefFoundError between jars, and IllegalAccessError for
+# core methods when the classes come from a shared-library jar).
+# They were written for the flat framework-jar world, so put the
+# unified MmbAll.jar on the boot classpath: one classloader sees
+# the whole family, exactly like the stock arrangement. The
+# uses-library registrations in mmb.xml stay in place (the APKs
+# require the names); the boot classloader wins class definition.
+PRODUCT_BOOT_JARS += \
+    MmbAll
+
 # Sensors
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/sensors/_hals.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sensors/_hals.conf
