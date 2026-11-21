@@ -306,6 +306,21 @@ public:
         return mReal->dump(fd, args);
     }
 
+    // Object attachments live on the real binder (BpBinder implements
+    // these with its own table); forward so identity is preserved.
+    void attachObject(const void* objectID, void* object,
+            void* cleanupCookie, object_cleanup_func func) override {
+        mReal->attachObject(objectID, object, cleanupCookie, func);
+    }
+
+    void* findObject(const void* objectID) const override {
+        return mReal->findObject(objectID);
+    }
+
+    void detachObject(const void* objectID) override {
+        mReal->detachObject(objectID);
+    }
+
     // Present ourselves as a remote binder: if frozen code ever writes
     // this wrapper into a Parcel via writeStrongBinder(), flattenBinder
     // must produce the real binder's handle, not a local reference to
