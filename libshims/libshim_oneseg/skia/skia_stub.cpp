@@ -242,16 +242,27 @@ public:
 class SkCanvas {
 public:
     SkCanvas(const SkBitmap&);
-    ~SkCanvas();
+    virtual ~SkCanvas();
 
-    int save();
-    void restore();
-    bool clipRect(const SkRect&, SkRegion::Op, bool);
-    void drawColor(SkColor, SkXfermode::Mode);
-    void drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode);
-    void drawPoint(SkScalar, SkScalar, SkColor);
-    void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&);
-    void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&);
+    virtual int save();
+    virtual void restore();
+    virtual bool clipRect(const SkRect&, SkRegion::Op, bool);
+    virtual void drawColor(SkColor, SkXfermode::Mode);
+    virtual void drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode);
+    virtual void drawPoint(SkScalar, SkScalar, SkColor);
+    virtual void drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&);
+    /* fix-13 (oneseg18 cycle 8): the frozen BML code calls drawRect
+     * ONLY through the SkCanvas vtable (slot 9, +0x24: JNI_waveFillRectPeer
+     * and clearBackbitmap), never via a PLT import, so the stub must
+     * provide a real vtable with drawRect at that slot. Without virtuals
+     * the canvas object has no vptr at all and its first word is heap
+     * content (0 for fresh allocations -> fault 0x24, tombstone_17;
+     * stale heap data -> jump to heap, tombstone_14/_19). The methods
+     * stay no-ops by design (see the file header); only the vtable
+     * layout matters. drawRect sits between drawLine and drawText in
+     * the legacy declaration order, which puts it at slot 9. */
+    virtual void drawRect(const SkRect&, const SkPaint&);
+    virtual void drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&);
 };
 
 SkCanvas::SkCanvas(const SkBitmap&) {}
@@ -264,6 +275,7 @@ void SkCanvas::drawColor(SkColor, SkXfermode::Mode) {}
 void SkCanvas::drawARGB(uint32_t, uint32_t, uint32_t, uint32_t, SkXfermode::Mode) {}
 void SkCanvas::drawPoint(SkScalar, SkScalar, SkColor) {}
 void SkCanvas::drawLine(SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&) {}
+void SkCanvas::drawRect(const SkRect&, const SkPaint&) {}
 void SkCanvas::drawText(const void*, size_t, SkScalar, SkScalar, const SkPaint&) {}
 
 class SkImageDecoder {
