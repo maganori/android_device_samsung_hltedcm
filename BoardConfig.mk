@@ -86,6 +86,7 @@ TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/libbroadcastForOneSeg_jni.so|libshim_oneseg_binder.so \
     /system/vendor/lib/libBroadcastProcObs.so|libshim_oneseg_binder.so \
     /system/vendor/lib/libSDtvService.so|libshim_oneseg_binder.so \
+    /system/bin/SDtvService|libshim_oneseg_binder.so \
     /system/vendor/lib/libBroadcastProcObs.so|libshim_binder.so \
     /system/vendor/lib/libMmbFcMp4Mw.so|libshim_binder.so \
     /system/vendor/lib/libMmbStBmlMw.so|libshim_binder.so \
