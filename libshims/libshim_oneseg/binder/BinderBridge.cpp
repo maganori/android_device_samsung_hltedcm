@@ -25,6 +25,19 @@
  *     converts the frozen 48-byte Parcels to real Parcels, calls the
  *     real BpBinder, and converts the reply back. The real transact()
  *     therefore never touches a frozen Parcel directly.
+ *  4. (fix 8, 2026-11-22) Parcel::readStrongBinder() wrapping every
+ *     REMOTE binder it returns in a ShimBinder (identity-deduped, so
+ *     repeated reads of the same binder yield the same wrapper).
+ *     Rationale: BMLEngineServer died in StandardInitialize even
+ *     with the bridge installed, because libBML.so's Bp proxy calls
+ *     transact() on the peer binder (IBMLEngineClient) that arrives
+ *     in the incoming Parcel via readStrongBinder -- a path the
+ *     service-manager bridge never sees. The proxy's stack Parcels
+ *     (48 bytes) then overflow into the A11 reply (60 bytes) and the
+ *     server dies in Parcel::freeDataNoInit inside waitForResponse
+ *     (tombstone_10). Local binders are returned unwrapped: wrapping
+ *     one would break flattenBinder (ShimBinder::remoteBinder() is
+ *     only valid for a real BpBinder) and same-process identity.
  *
  * Nothing in the frozen libraries is modified.
  *
@@ -43,6 +56,7 @@
 #include <pthread.h>
 #include <string.h>
 
+#include <map>
 #include <set>
 #include <vector>
 
@@ -67,6 +81,11 @@ namespace android {
 typedef void (*ParcelCtorFn)(void* self);
 typedef void (*ParcelDtorFn)(void* self);
 typedef void (*DefaultServiceManagerFn)(void* sret);
+// Parcel::readStrongBinder() const returns sp<IBinder> by value, so
+// the AAPCS hidden result pointer is the first argument and `this`
+// is the second -- the same convention as defaultServiceManager()
+// above. Mangled name: _ZNK7android6Parcel16readStrongBinderEv.
+typedef void (*ReadStrongBinderFn)(void* sret, const Parcel* self);
 // IPCThreadState::freeBuffer: the release function libbinder installs
 // on Parcels that reference the binder driver buffer (executeCommand's
 // data Parcel, IPCThreadState::mIn). Resolved the same way as the
@@ -78,6 +97,7 @@ typedef void (*ReleaseFuncFn)(Parcel* parcel, const uint8_t* data,
 static ParcelCtorFn gRealParcelCtor = nullptr;
 static ParcelDtorFn gRealParcelDtor = nullptr;
 static DefaultServiceManagerFn gRealDefaultServiceManager = nullptr;
+static ReadStrongBinderFn gRealReadStrongBinder = nullptr;
 static ReleaseFuncFn gRealFreeBuffer = nullptr;
 static pthread_once_t gRealOnce = PTHREAD_ONCE_INIT;
 
@@ -98,10 +118,13 @@ static void resolveRealSymbols() {
             dlsym(handle, "_ZN7android6ParcelD1Ev"));
     gRealDefaultServiceManager = reinterpret_cast<DefaultServiceManagerFn>(
             dlsym(handle, "_ZN7android21defaultServiceManagerEv"));
+    gRealReadStrongBinder = reinterpret_cast<ReadStrongBinderFn>(
+            dlsym(handle, "_ZNK7android6Parcel16readStrongBinderEv"));
     gRealFreeBuffer = reinterpret_cast<ReleaseFuncFn>(
             dlsym(handle, "_ZN7android14IPCThreadState10freeBufferEPNS_6ParcelEPKhjPKyjPv"));
     if (gRealParcelCtor == nullptr || gRealParcelDtor == nullptr ||
             gRealDefaultServiceManager == nullptr ||
+            gRealReadStrongBinder == nullptr ||
             gRealFreeBuffer == nullptr) {
         ALOGE("oneseg_shim: failed to resolve real libbinder symbols");
     }
@@ -512,6 +535,69 @@ static sp<IBinder> wrapBinder(const sp<IBinder>& real) {
         return real;
     }
     return sp<IBinder>(new ShimBinder(real));
+}
+
+// Identity-deduped variant used by the interposed readStrongBinder()
+// below: repeated reads of the same remote binder must yield the
+// same wrapper object, because callers (including A11 framework code
+// in the app process, e.g. activity tokens) compare binders by
+// pointer. The map holds weak references, so a wrapper that nobody
+// uses any more is dropped and a later read creates a fresh one.
+static std::map<IBinder*, wp<ShimBinder>>& wrapperMap() {
+    static std::map<IBinder*, wp<ShimBinder>> sMap;
+    return sMap;
+}
+static Mutex& wrapperMapLock() {
+    static Mutex sLock;
+    return sLock;
+}
+static sp<IBinder> wrapBinderDedup(const sp<IBinder>& real) {
+    if (real == nullptr) {
+        return nullptr;
+    }
+    if (ShimBinder::isShimBinder(real.get())) {
+        return real;
+    }
+    Mutex::Autolock lock(wrapperMapLock());
+    auto it = wrapperMap().find(real.get());
+    if (it != wrapperMap().end()) {
+        sp<ShimBinder> existing = it->second.promote();
+        if (existing != nullptr) {
+            return sp<IBinder>(existing.get());
+        }
+    }
+    sp<ShimBinder> wrapper = new ShimBinder(real);
+    wrapperMap()[real.get()] = wp<ShimBinder>(wrapper);
+    return sp<IBinder>(wrapper.get());
+}
+
+// ---------------------------------------------------------------------------
+// Interposed Parcel::readStrongBinder(). The service-manager bridge
+// (item 2 above) only wraps binders obtained via getService(); a
+// binder that arrives inside an incoming Parcel -- e.g. the
+// IBMLEngineClient peer the app passes in StandardInitialize --
+// comes back as a raw BpBinder, and the frozen Bp proxy then calls
+// transact() on it with 48-byte stack Parcels (see the fix 8 note in
+// the file header). Wrapping remote binders here closes that path.
+// Local binders (BBinder, JavaBBinder, ...) are returned untouched.
+sp<IBinder> Parcel::readStrongBinder() const {
+    ensureRealSymbols();
+    sp<IBinder> result;
+    if (gRealReadStrongBinder != nullptr) {
+        gRealReadStrongBinder(&result, this);
+    }
+    if (result == nullptr) {
+        return result;
+    }
+    if (result->remoteBinder() == nullptr) {
+        // Local binder: wrapping would break flattenBinder
+        // (ShimBinder::remoteBinder() is only valid for a real
+        // BpBinder) and same-process identity, so leave it alone.
+        // A frozen transact() on a local binder is a separate,
+        // unobserved case and is not addressed here.
+        return result;
+    }
+    return wrapBinderDedup(result);
 }
 
 // ---------------------------------------------------------------------------
