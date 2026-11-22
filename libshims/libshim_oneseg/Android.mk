@@ -6,6 +6,12 @@ LOCAL_SRC_FILES := ui/GraphicBuffer.cpp ui/SurfaceAlloc.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_SHARED_LIBRARIES := libui liblog libdl
+# DF_1_GLOBAL: libSDtvVout.so is BIND_NOW, so its operator-new PLT entry
+# is bound eagerly from the load-group lookup list (global group first,
+# then BFS local group). libstdc++.so (depth 1, direct dep of the
+# SDtvService executable) otherwise wins over this shim (child of
+# libSDtvVout, depth 2+). Being in the global group puts the shim first.
+LOCAL_LDFLAGS := -Wl,-z,global
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
