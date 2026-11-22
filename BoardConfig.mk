@@ -94,6 +94,7 @@ TARGET_LD_SHIM_LIBS += \
     /system/vendor/lib/libMmbStCtlMw.so|libshim_binder.so \
     /system/vendor/lib/libBML.so|libshim_binder.so \
     /system/vendor/lib/libBMLJNI.so|libshim_binder.so \
+    /system/vendor/lib/libBMLJNI.so|libshim_oneseg_binder.so \
     /system/vendor/lib/libSDtvService.so|libshim_binder.so \
     /system/vendor/lib/libonesegdsmcc.so|libshim_binder.so \
     /system/vendor/lib/libMmbMfMp4FwMw.so|libshim_oneseg_video.so \
