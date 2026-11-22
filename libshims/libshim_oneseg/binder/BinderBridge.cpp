@@ -265,11 +265,18 @@ Parcel::~Parcel() {
 // ShimDeathRecipient: receives death notifications from the real
 // BpBinder and forwards them to the frozen A5 DeathRecipient.
 //
-// The frozen recipient's binderDied() lives at vtable offset +0x18 of
-// its DeathRecipient subobject (RefBase virtuals occupy +0x00..+0x14
-// in both generations; layout verified in Phase 0). The wp<IBinder>
-// handed over refers to the real binder, which is also what the
-// frozen code would have observed without this shim.
+// The frozen recipient's binderDied() lives at vtable slot 0 of its
+// DeathRecipient subobject in BOTH generations. DeathRecipient derives
+// from RefBase *virtually*, so the RefBase virtuals live in the
+// secondary vtable, not ahead of binderDied; binderDied is
+// DeathRecipient's first virtual. Evidence (see abi-check/NOTES.md,
+// oneseg15 fixing 3): A11 libbinder's BpBinder::reportOneDeath calls
+// the recipient's vtable slot 0; the shim's own ShimDeathRecipient
+// vtable has binderDied at slot 0; and the frozen
+// OneSegCDsmccClient vtable has binderDied (0x91e0) at slot 0.
+// (An earlier revision called slot 6, which is the secondary
+// vtable's offset-to-top word (-4) for this class, so the call jumped
+// to 0xfffffffc and killed the daemon -- tombstone_39.)
 
 class ShimDeathRecipient : public IBinder::DeathRecipient {
 public:
@@ -280,7 +287,7 @@ public:
     void binderDied(const wp<IBinder>& who) override {
         void** vtable = *reinterpret_cast<void***>(mFrozen);
         typedef void (*BinderDiedFn)(void* self, const wp<IBinder>& who);
-        reinterpret_cast<BinderDiedFn>(vtable[6])(mFrozen, who);
+        reinterpret_cast<BinderDiedFn>(vtable[0])(mFrozen, who);
     }
 
     IBinder::DeathRecipient* frozen() const {
