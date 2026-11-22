@@ -260,7 +260,9 @@ static void releaseParcelContents(Parcel* parcel) {
 // values (see Parcel::initState in A11 Parcel.cpp), so that real A11
 // Parcel methods called by the frozen code see a consistent object.
 // Offsets 48..59 (mOwner/mOwnerCookie/mOpenAshmemSize) belong to the
-// frozen caller's neighbouring stack slots and are never touched.
+// frozen caller's neighbouring stack slots and are never touched
+// for a frozen caller; for a non-vendor caller (fix 12) the tail is
+// zeroed as well, because the object is a real 60-byte A11 Parcel.
 
 Parcel::Parcel() {
     mError = NO_ERROR;
@@ -278,6 +280,26 @@ Parcel::Parcel() {
     mFdsKnown = true;
     mHasFds = false;
     mAllowFds = true;
+    // (fix 12, 2026-11-23) This interposed ctor also runs for A11's
+    // own Parcel constructions: libbinder calls Parcel::Parcel()
+    // through its PLT, and the shim wins symbol resolution in shimmed
+    // processes. A11 objects (e.g. IPCThreadState::mIn/mOut, 60 bytes)
+    // would then keep an uninitialized tail, and the first growth
+    // (setDataCapacity in the IPCThreadState ctor) reads mOwner at
+    // +48 and calls heap garbage (tombstone_16: jump to 0x7b30fbfc
+    // in Parcel::continueWrite). Tell the two apart by caller:
+    // frozen libraries live under /system/vendor, A11 system code
+    // under /system/lib or /apex. A vendor caller gets the 48-byte
+    // init above; any other caller also gets the tail zeroed, so the
+    // object is a fully valid 60-byte A11 Parcel.
+    void* caller = __builtin_return_address(0);
+    Dl_info info;
+    if (dladdr(caller, &info) == 0 || info.dli_fname == nullptr ||
+            strstr(info.dli_fname, "/vendor/") == nullptr) {
+        mOwner = nullptr;
+        mOwnerCookie = nullptr;
+        mOpenAshmemSize = 0;
+    }
 }
 
 Parcel::~Parcel() {
