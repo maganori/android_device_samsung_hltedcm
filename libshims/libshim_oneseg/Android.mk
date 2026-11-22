@@ -2,10 +2,10 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libshim_oneseg_video
-LOCAL_SRC_FILES := ui/GraphicBuffer.cpp
+LOCAL_SRC_FILES := ui/GraphicBuffer.cpp ui/SurfaceAlloc.cpp
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_SHARED_LIBRARIES := libui
+LOCAL_SHARED_LIBRARIES := libui liblog libdl
 LOCAL_PROPRIETARY_MODULE := true
 include $(BUILD_SHARED_LIBRARY)
 
