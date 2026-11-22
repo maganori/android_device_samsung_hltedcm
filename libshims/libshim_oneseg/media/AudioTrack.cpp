@@ -70,6 +70,23 @@ android::AudioTrack::AudioTrack(audio_stream_type_t, unsigned int, audio_format_
 void _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_jiNS0_13transfer_typeEPK20audio_offload_info_tiiPK18audio_attributes_t(
         void *self, audio_stream_type_t streamType, uint32_t sampleRate, audio_format_t format, audio_channel_mask_t channelMask, size_t frameCount, audio_output_flags_t flags, android::AudioTrack::callback_t cbf, void* user, unsigned int notificationFrames, audio_session_t sessionId, android::AudioTrack::transfer_type transferType, audio_offload_info_t const *offloadInfo, uid_t uid, pid_t pid, audio_attributes_t const *pAttributes)
 {
+    /*
+     * The frozen A5 caller (libSDtvAout.so SDTV_OpenAudio) passes
+     * pAttributes == (audio_attributes_t*)-1 to mean "no attributes":
+     * the stock libSDtvAout is byte-identical and works on A5, so A5's
+     * AudioTrack::set tolerates the sentinel. Android 11's set()
+     * memcpy()s 272 bytes from pAttributes whenever it is non-NULL,
+     * so -1 segfaults the SDtvService audio thread (tombstone_11,
+     * SIGSEGV fault 0xffffffff, SDtvThAudio) and the service death
+     * then wedges the app main thread in SDtvClient_GetService
+     * (ANR in MtvUiChannelGuide). Translate the sentinel to NULL so
+     * A11 falls back to AUDIO_ATTRIBUTES_DEFAULT. A valid A5
+     * attributes struct has the same 272-byte layout as A11's, so
+     * real pointers are forwarded unchanged.
+     */
+    if (pAttributes == reinterpret_cast<const audio_attributes_t*>(-1)) {
+        pAttributes = nullptr;
+    }
     _ZN7android10AudioTrackC1E19audio_stream_type_tj14audio_format_tjj20audio_output_flags_tPFviPvS4_ES4_i15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tjiPK18audio_attributes_tbfiRKNSt3__112basic_stringIcNSF_11char_traitsIcEENSF_9allocatorIcEEEE(
 	self, streamType, sampleRate, format, channelMask, frameCount, flags, cbf, user, notificationFrames, sessionId, transferType, offloadInfo, uid, pid, pAttributes, false, 1.0f, 0 /* AUDIO_PORT_HANDLE_NONE */, *reinterpret_cast<const AudioTrackOpPackageName*>(kEmptyPackageName));
 }
