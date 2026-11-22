@@ -67,10 +67,18 @@ namespace android {
 typedef void (*ParcelCtorFn)(void* self);
 typedef void (*ParcelDtorFn)(void* self);
 typedef void (*DefaultServiceManagerFn)(void* sret);
+// IPCThreadState::freeBuffer: the release function libbinder installs
+// on Parcels that reference the binder driver buffer (executeCommand's
+// data Parcel, IPCThreadState::mIn). Resolved the same way as the
+// other real symbols.
+typedef void (*ReleaseFuncFn)(Parcel* parcel, const uint8_t* data,
+        size_t dataSize, const binder_size_t* objects, size_t objectsSize,
+        void* cookie);
 
 static ParcelCtorFn gRealParcelCtor = nullptr;
 static ParcelDtorFn gRealParcelDtor = nullptr;
 static DefaultServiceManagerFn gRealDefaultServiceManager = nullptr;
+static ReleaseFuncFn gRealFreeBuffer = nullptr;
 static pthread_once_t gRealOnce = PTHREAD_ONCE_INIT;
 
 static void resolveRealSymbols() {
@@ -90,8 +98,11 @@ static void resolveRealSymbols() {
             dlsym(handle, "_ZN7android6ParcelD1Ev"));
     gRealDefaultServiceManager = reinterpret_cast<DefaultServiceManagerFn>(
             dlsym(handle, "_ZN7android21defaultServiceManagerEv"));
+    gRealFreeBuffer = reinterpret_cast<ReleaseFuncFn>(
+            dlsym(handle, "_ZN7android14IPCThreadState10freeBufferEPNS_6ParcelEPKhjPKyjPv"));
     if (gRealParcelCtor == nullptr || gRealParcelDtor == nullptr ||
-            gRealDefaultServiceManager == nullptr) {
+            gRealDefaultServiceManager == nullptr ||
+            gRealFreeBuffer == nullptr) {
         ALOGE("oneseg_shim: failed to resolve real libbinder symbols");
     }
 }
@@ -126,6 +137,18 @@ struct ParcelCore {
     uint8_t mPad2;                              // 47
 };
 static_assert(sizeof(ParcelCore) == 48, "ParcelCore must cover offsets 0..47");
+
+// The 12-byte tail of a real (60-byte) Parcel. A frozen Parcel has no
+// tail: offsets 48..59 are its caller's neighbouring stack slots, so
+// the tail must never be read or written for a frozen Parcel --
+// except for the one comparison in releaseParcelContents, which only
+// ever copies it when it is exactly the known release function below.
+struct ParcelTail {
+    ReleaseFuncFn mOwner;                   // 48
+    void* mOwnerCookie;                     // 52
+    size_t mOpenAshmemSize;                 // 56
+};
+static_assert(sizeof(ParcelTail) == 12, "ParcelTail must cover offsets 48..59");
 
 static ParcelCore* coreOf(Parcel* parcel) {
     return reinterpret_cast<ParcelCore*>(parcel);
@@ -164,6 +187,20 @@ private:
 // keeps the real ctor's values (mOwner == nullptr), so the real
 // freeData path never dereferences anything from beyond the frozen
 // buffer. The frozen Parcel is left empty.
+//
+// One exception: a real Parcel that references (rather than owns) its
+// buffer carries a release function in its tail. libbinder's
+// executeCommand data Parcel and IPCThreadState::mIn reference the
+// binder driver buffer with mOwner == IPCThreadState::freeBuffer; the
+// interposed dtor also runs for those Parcels, now that the shim is
+// active in the daemon. Dropping the tail makes the real destructor
+// free() the driver buffer and crash in jemalloc (tombstone_34:
+// freeDataNoInit -> free(mData) on the driver buffer). The tail is
+// therefore copied into the shell when -- and only when -- it is
+// exactly the known release function, so the real destructor invokes
+// it (BC_FREE_BUFFER) instead of free(). A frozen caller never loads
+// IPCThreadState::freeBuffer, so stack garbage in a frozen Parcel's
+// neighbouring slots cannot plausibly equal that address.
 static void releaseParcelContents(Parcel* parcel) {
     ParcelCore* core = coreOf(parcel);
     if (core->mData == nullptr && core->mObjects == nullptr) {
@@ -172,6 +209,16 @@ static void releaseParcelContents(Parcel* parcel) {
     RealParcel shell;
     // Overwrite only the core; the shell tail stays real-initialized.
     memcpy(coreOf(shell.get()), core, sizeof(ParcelCore));
+    // The shell construction above resolved the real symbols, so
+    // gRealFreeBuffer is valid here when libbinder provided it.
+    if (gRealFreeBuffer != nullptr) {
+        ParcelTail* tail = reinterpret_cast<ParcelTail*>(
+                reinterpret_cast<uint8_t*>(parcel) + sizeof(ParcelCore));
+        if (tail->mOwner == gRealFreeBuffer) {
+            memcpy(reinterpret_cast<uint8_t*>(shell.get()) + sizeof(ParcelCore),
+                   tail, sizeof(ParcelTail));
+        }
+    }
     core->mData = nullptr;
     core->mDataSize = 0;
     core->mDataCapacity = 0;
